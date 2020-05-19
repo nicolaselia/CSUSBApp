@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationProvider;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -24,6 +27,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,12 +37,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
+import java.util.Locale;
 
 public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private Boolean inFullScreenMode = false;
-    private DatabaseHelper database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +61,14 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         setUpProgressBar();
     }
 
-    private void setUpListeners(){
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpProgressBar();
+    }
+
+    private void setUpListeners() {
+        // Goes to List of Places activity
         TextView listOfPlacesText = findViewById(R.id.list_of_places_text);
         listOfPlacesText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +78,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
             }
         });
 
+        // Goes to List of Places activity
         ImageView topArrow = findViewById(R.id.top_arrow);
         topArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +88,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
             }
         });
 
+        // Goes to QR Scanner
         TextView checkOffText = findViewById(R.id.checkoff_place_text);
         checkOffText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,6 +103,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
             }
         });
 
+        // Goes to QR Scanner
         ImageView bottomArrow = findViewById(R.id.bottom_arrow);
         bottomArrow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +112,17 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
                 startActivity(intent);
             }
         });
+
+        // Moves camera to Student Union when pressed (in case the user is off campus)
+        ImageView pawImage = findViewById(R.id.paw);
+        pawImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(34.181309518547195, -117.32371486723423), 18));
+            }
+        });
+
     }
 
 
@@ -105,7 +134,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        /*To find map coordinates
+        /*To find map coordinates for database
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -117,6 +146,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
 
         styleMap();
         populateMap();
+        setUpDirectionIntegration();
 
         Intent intent = getIntent();
         String location = intent.getStringExtra("Location");
@@ -170,6 +200,35 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
+    private void setUpDirectionIntegration(){
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(final LatLng latLng) {
+                new AlertDialog.Builder(ScavengerHunt.this)
+                        .setTitle("Open Google Maps?")
+                        .setMessage("Get directions to your selected location.")
+                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String uri = "http://maps.google.com/maps?daddr=" + latLng.latitude + "," + latLng.longitude + " (" + "Where the party is at" + ")";
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                                intent.setPackage("com.google.android.apps.maps");
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                // Do nothing
+                            }
+                        })
+                        .show();
+
+                Log.i("MAP", latLng.latitude + ", " + latLng.longitude);
+            }
+        });
+    }
+
     /**
      * Enables fullscreen functionality for the map
      */
@@ -221,10 +280,28 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
      * Show the current location by default
      */
     private void showCurrentLocation() {
-        LatLng current = new LatLng(34.180972800611016, -117.32337489724159);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            FusedLocationProviderClient mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(ScavengerHunt.this);
+            Task locationResult = mFusedLocationProviderClient.getLastLocation();
+            locationResult.addOnCompleteListener(this, new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
+                        Location location = (Location) task.getResult();
+                        LatLng current = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 18));
 
-        mMap.addMarker(new MarkerOptions().position(current).title("You are here"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 18));
+                        mMap.addMarker(new MarkerOptions().position(current).title("You are here"));
+                    }
+                }
+            });
+        }
+        else {  // Show default location
+            requestLocationPermission();
+
+            LatLng current = new LatLng(34.180972800611016, -117.32337489724159);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 18));
+        }
     }
 
     /**
@@ -264,6 +341,9 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         progressText.setText(" " + progress + "%");
     }
 
+    /**
+     * Ask for camera permission before proceeding
+     */
     private void requestCameraPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)) {
@@ -294,14 +374,61 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Ask for location permission
+     */
+    private void requestLocationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("Location Permission is needed to show your current location on the map")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(ScavengerHunt.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            Toast.makeText(ScavengerHunt.this, "Location Permission is needed to update the map", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .create()
+                    .show();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+        }
+    }
+
+    /**
+     * Executes after user responds to permission request
+     *
+     * @param requestCode:  "1" for camera, "2" for location
+     * @param permissions:  unused
+     * @param grantResults: array containing the result of the user's action
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1)  {
+        if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(ScavengerHunt.this, ScanQRCode.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Camera is needed to scan QR codes", Toast.LENGTH_SHORT).show();
+            }
+
+        } else if (requestCode == 2) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showCurrentLocation();
+            } else {
+                Toast.makeText(this, "Location Permission is needed to update the map", Toast.LENGTH_SHORT).show();
             }
         }
     }

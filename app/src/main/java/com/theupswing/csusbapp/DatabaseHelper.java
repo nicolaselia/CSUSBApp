@@ -51,6 +51,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertData("Gym", 34.181309518547298, -117.32371486723623, "You can work out here", "gym", 0);
     }
 
+    /**
+     * Insert a row of data
+     */
     public int insertData(String location, double latitude, double longitude, String description, String image, int visited){
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_LOC, location);
@@ -68,12 +71,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    /**
+     * Returns the description field
+     * @param location: The specific location whose description is returned
+     */
     public String getDescription(String location){
         Cursor cursor = database.query(TABLE_NAME, null, COL_LOC + " = ?", new String[]{location}, null, null, null);
         cursor.moveToNext();
         return cursor.getString(cursor.getColumnIndex(COL_DESC));
     }
 
+    /**
+     * Returns an image identifier that can later be used to get the image from the drawable folder
+     * @param location: The specific location whose description is returned
+     */
     public int getImage(String location){
         Cursor cursor = database.query(TABLE_NAME, null, COL_LOC + " = ?", new String[]{location}, null, null, null);
         cursor.moveToNext();
@@ -129,8 +140,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-// Library: 34.18265304856431, -117.32407059520483
-// Student Union: 34.181309518547195, -117.32371486723423
-// Gym: 34.181243783767364, -117.31866795569658
+    // Library: 34.18265304856431, -117.32407059520483
+    // Student Union: 34.181309518547195, -117.32371486723423
+    // Gym: 34.181243783767364, -117.31866795569658
+    // Commons: 34.18043637898142, -117.32064474374056
+    // Career Center (UH): 34.18040614622342, -117.32426404953004
+    // Student Health Center: 34.18139882900989, -117.32251893728971
+    // Writing Center: 34.183066587456764, -117.32203178107738
+    // The Wedge: 34.18272543881861, -117.32447091490029
+
 
 }
