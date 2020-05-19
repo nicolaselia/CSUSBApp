@@ -95,18 +95,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //return cursor.getInt(cursor.getColumnIndex(COL_IMAGE));
     }
 
+    /**
+     * Returns the latitude of the specified location
+     */
     public double getLatitude(String location){
         Cursor cursor = database.query(TABLE_NAME, null, COL_LOC + " = ?", new String[]{location}, null, null, null);
         cursor.moveToNext();
         return cursor.getDouble(cursor.getColumnIndex(COL_LAT));
     }
 
+    /**
+     * Returns the longitude of the specified location
+     */
     public double getLongitude(String location){
         Cursor cursor = database.query(TABLE_NAME, null, COL_LOC + " = ?", new String[]{location}, null, null, null);
         cursor.moveToNext();
         return cursor.getDouble(cursor.getColumnIndex(COL_LONG));
     }
 
+    /**
+     * Updates the latitude and longitude fields of the specified location
+     * @param location: Specific location
+     * @param latitude: New latitude value
+     * @param longitude: New longitude value
+     */
     public void updateLatLng(String location, double latitude, double longitude){
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_LAT, latitude);
@@ -115,6 +127,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.update(TABLE_NAME, contentValues, COL_LOC + " = ?", new String[]{location});  //"location" is substituted into the ? in the where clause. Setting the where clause to null will update all values
     }
 
+    /**
+     * Updates the visited field of the specified location
+     * @param location: Specific location
+     * @param visited: New visited value
+     */
     public void updateVisited(String location, int visited){
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_VISITED, visited);
@@ -122,6 +139,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.update(TABLE_NAME, contentValues, COL_LOC + " = ?", new String[]{location});  //"location" is substituted into the ? in the where clause. Setting the where clause to null will update all values
     }
 
+    /**
+     * Updates the latitude and longitude fields of the specified location
+     * @param location: Specific location
+     * @param image: The new image name (should be exactly like the name in the Drawable directory)
+     */
     public void updateImage(String location, String image){
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_IMAGE, image);
@@ -129,6 +151,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.update(TABLE_NAME, contentValues, COL_LOC + " = ?", new String[]{location});  //"location" is substituted into the ? in the where clause. Setting the where clause to null will update all values
     }
 
+    /**
+     * Checks if a certain value is in the database
+     * @param column: Specific column
+     * @param searchItem: Specific value in the column
+     * @return true if the searchItem is found
+     */
     public boolean isInDatabase(String column, String searchItem){
         String[] columns = { column };
         String[] selectionArgs = { searchItem };
@@ -148,6 +176,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Student Health Center: 34.18139882900989, -117.32251893728971
     // Writing Center: 34.183066587456764, -117.32203178107738
     // The Wedge: 34.18272543881861, -117.32447091490029
-
 
 }
