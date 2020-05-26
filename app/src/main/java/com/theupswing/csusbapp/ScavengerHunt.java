@@ -1,12 +1,14 @@
 package com.theupswing.csusbapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationProvider;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +30,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -39,8 +45,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-import java.util.Locale;
 
 public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallback {
 
@@ -153,17 +157,10 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         if (location != null) {
             showSelectedLocation(location);
         } else {
-            showCurrentLocation();
+            //showCurrentLocation();
+            createLocationRequest();
         }
 
- /*
-        LatLng library = new LatLng(34.18265304856431, -117.32407059520483);
-
-        GroundOverlayOptions newarkMap = new GroundOverlayOptions()
-                .image(BitmapDescriptorFactory.fromResource(R.drawable.library))
-                .position(library, 30f, 30f);
-        mMap.addGroundOverlay(newarkMap);
-        */
 
     }
 
@@ -200,7 +197,10 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
-    private void setUpDirectionIntegration(){
+    /**
+     * When a user clicks on a location on the map, show a dialog that lets them proceed to open the location in the GMaps app (so they can get directions)
+     */
+    private void setUpDirectionIntegration() {
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(final LatLng latLng) {
@@ -295,13 +295,43 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
                     }
                 }
             });
-        }
-        else {  // Show default location
+        } else {  // Show default location
             requestLocationPermission();
 
             LatLng current = new LatLng(34.180972800611016, -117.32337489724159);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 18));
         }
+    }
+
+    private void createLocationRequest() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationCallback mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        LatLng current = new LatLng(location.getLatitude(), location.getLongitude());
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 18));
+                        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            mMap.setMyLocationEnabled(true);
+                        }
+
+                    }
+                }
+            }
+        };
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.getFusedLocationProviderClient(this).requestLocationUpdates(locationRequest, mLocationCallback, null);
+        }
+
     }
 
     /**

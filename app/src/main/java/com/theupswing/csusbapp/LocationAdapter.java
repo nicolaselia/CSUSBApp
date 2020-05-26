@@ -10,10 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+/**
+ * You probably won't need to edit this class in the future except if you want to change the structure of the list of locations in ListOfPlaces
+ */
 public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.ExampleViewHolder> {
 
     private ArrayList<LocationItem> mExampleList;
-    private OnItemClickListener mListener; // make sure you import the one that you implemented below (heed the package name)
+    private OnItemClickListener mListener;
 
     public interface OnItemClickListener{
         void onItemClick(int position);

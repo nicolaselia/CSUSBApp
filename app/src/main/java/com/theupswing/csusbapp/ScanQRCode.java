@@ -59,6 +59,9 @@ public class ScanQRCode extends AppCompatActivity {
         codeScanner.startPreview();
     }
 
+    /**
+     * Marks the new location as visited in the database
+     */
     private void updateDatabase(String location){
         DatabaseHelper database = new DatabaseHelper(ScanQRCode.this);
         if(database.isInDatabase(database.COL_LOC, location)){
@@ -69,6 +72,9 @@ public class ScanQRCode extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a dialog after a new location is added.
+     */
     private void showAlertDialog(final String location) {
 
         // Get data from database to display

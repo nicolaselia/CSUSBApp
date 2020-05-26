@@ -53,6 +53,9 @@ public class ListOfPlaces extends AppCompatActivity {
         });
     }
 
+    /**
+     * Returns an ArrayList of LocationItem objects to be displayed to the user
+     */
     private ArrayList<LocationItem> loadData() {
         ArrayList<LocationItem> locationItems = new ArrayList<>();
         DatabaseHelper database = new DatabaseHelper(this);

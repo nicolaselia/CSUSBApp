@@ -1,4 +1,25 @@
 <resources>
     <string name="app_name">CSUSBApp</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- Delete this -->
+    <string-array name="subjects_array">
+        <item>ACCT</item>
+        <item>ADMN</item>
+        <item>BIOL</item>
+        <item>CSE</item>
+        <item>ENG</item>
+        <item>FIN</item>
+        <item>MATH</item>
+    </string-array>
+
+    <string-array name="course_numbers_array">
+        <item>101</item>
+        <item>201</item>
+        <item>202</item>
+        <item>350</item>
+        <item>406</item>
+        <item>522</item>
+    </string-array>
+
 </resources>

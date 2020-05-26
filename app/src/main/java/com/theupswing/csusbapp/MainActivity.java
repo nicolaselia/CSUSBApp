@@ -15,8 +15,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initializeData();
 
+        initializeData();
+        setUpListeners();
+    }
+
+    /**
+     * Make each of the buttons open their respective activity
+     */
+    private void setUpListeners(){
         Button scavengerHunt = findViewById(R.id.scavenger_hunt_button);
         Button majorGuide = findViewById(R.id.major_guide_button);
         Button studyGroups = findViewById(R.id.study_groups_button);
@@ -39,12 +46,15 @@ public class MainActivity extends AppCompatActivity {
         studyGroups.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "Coming soon!", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MainActivity.this, StudyGroupFeed.class);
+                startActivity(intent);
             }
         });
-
     }
 
+    /**
+     * This method will only execute the FIRST time the user opens the app. It initializes the database to predetermined values.
+     */
     private void initializeData(){
         SharedPreferences sharedPreferences = getSharedPreferences("InitializeData", MODE_PRIVATE);
         if(sharedPreferences.getBoolean("FirstTime", true)){
