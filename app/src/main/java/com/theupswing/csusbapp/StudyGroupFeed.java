@@ -3,21 +3,27 @@ package com.theupswing.csusbapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class StudyGroupFeed extends AppCompatActivity {
+
+    DatabaseHelper database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_study_group_feed);
+        database = new DatabaseHelper(StudyGroupFeed.this);
 
         ImageView button = findViewById(R.id.add_group_button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -30,6 +36,7 @@ public class StudyGroupFeed extends AppCompatActivity {
 
         setUpSpinners();
 
+        //showDummyPosts();
         showPosts();
     }
 
@@ -37,48 +44,103 @@ public class StudyGroupFeed extends AppCompatActivity {
      * Initializes the Subject and Course number spinners.
      * To retrieve the data from a database, change the Array Adapter to a Query Adapter
      */
-    private void setUpSpinners(){
-        Spinner subjectSpinner = findViewById(R.id.subject);
+    private void setUpSpinners() {
+        final LinearLayout linearLayout = findViewById(R.id.linear_layout);
+
+        // Set Up Subject Spinner
+        Spinner subjectSpinner = findViewById(R.id.subject_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.subjects_array, R.layout.study_group_spinner_items);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         subjectSpinner.setAdapter(adapter);
+        subjectSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            int previousPosition1 = 0;
 
-        Spinner numberSpinner = findViewById(R.id.course_number);
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                if (position != previousPosition1) {
+                    linearLayout.removeAllViews();
+                    showPosts();
+                    previousPosition1 = position;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        // Set Up Number Spinner
+        Spinner numberSpinner = findViewById(R.id.course_number_spinner);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this, R.array.course_numbers_array, R.layout.study_group_spinner_items);
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         numberSpinner.setAdapter(adapter2);
+        numberSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            int previousPosition2 = 0;
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                if (position != previousPosition2) {
+                    linearLayout.removeAllViews();
+                    showPosts();
+                    previousPosition2 = position;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     /**
-     * Creates block objects and posts them in the feed
+     * Populates the layout with the filtered posts from the database
      */
-    private void showPosts(){
-        StudyGroupBlock testBlock1 = new StudyGroupBlock(this,
-                "CSE308",
-                "Dr. Fadi Muheidat",
-                "Midterm Review",
-                "I want to go over chapter 5 in the book",
-                2,5);
+    private void showPosts() {
+        Spinner subjectSpinner = findViewById(R.id.subject_spinner);
+        String subject = subjectSpinner.getSelectedItem().toString();
+        Spinner numberSpinner = findViewById(R.id.course_number_spinner);
+        String number = numberSpinner.getSelectedItem().toString();
 
-        StudyGroupBlock testBlock2 = new StudyGroupBlock(this,
-                "CSE202",
-                "Dr. Mathew Harvel",
-                "Binary Search Trees",
-                "I am going to be practicing Binary Search Tree exercises from the lectures and book. Feel free to join!",
-                1,2);
-
-        StudyGroupBlock testBlock3 = new StudyGroupBlock(this,
-                "BIOL200",
-                "Dr. Nicholas Cordero",
-                "Mitosis vs Meiosis",
-                "I'm struggling differenting between the two concepts. I'm going to be creating detailed notes and flashcards on each if anyone would like to join.",
-                3,3);
-
-
+        ArrayList<StudyGroupBlock> studyGroupBlocks = getBlocksFromDatabase(subject, number);
         LinearLayout linearLayout = findViewById(R.id.linear_layout);
-        testBlock1.showPost(linearLayout);
-        testBlock2.showPost(linearLayout);
-        testBlock3.showPost(linearLayout);
+        for (StudyGroupBlock block : studyGroupBlocks) {
+            block.showPost(linearLayout);
+        }
+    }
+
+    /**
+     * Looks for the requested information in the database and returns them in an ArrayList
+     *
+     * @param subject: the specific course subject (first spinner)
+     * @param number:  the specific course number (second spinner)
+     * @return the ArrayList containing all the queried StudyGroupBlock objects
+     */
+    private ArrayList<StudyGroupBlock> getBlocksFromDatabase(String subject, String number) {
+
+        ArrayList<StudyGroupBlock> studyGroupBlocks = new ArrayList<>();
+        Cursor cursor = database.getDataForStudyGroups(subject, number);
+        while (cursor.moveToNext()) {
+            String course = cursor.getString(cursor.getColumnIndex(database.COL_COURSE_SUBJECT))
+                    + cursor.getString(cursor.getColumnIndex(database.COL_COURSE_NUMBER));
+            String instructor = cursor.getString(cursor.getColumnIndex(database.COL_INSTRUCTOR_NAME));
+            String topic = cursor.getString(cursor.getColumnIndex(database.COL_TOPIC));
+            String description = cursor.getString(cursor.getColumnIndex(database.COL_DESCRIPTION));
+            int totalSpots = cursor.getInt(cursor.getColumnIndex(database.COL_MAX_PARTICIPANTS));
+            int sessionID = cursor.getInt(cursor.getColumnIndex(database.COL_SESSION_ID));
+
+            studyGroupBlocks.add(new StudyGroupBlock(StudyGroupFeed.this,
+                    course,
+                    instructor,
+                    topic,
+                    description,
+                    totalSpots, // Change this later to reflect the real time number of participants
+                    totalSpots,
+                    sessionID));
+        }
+
+        return studyGroupBlocks;
     }
 
 }

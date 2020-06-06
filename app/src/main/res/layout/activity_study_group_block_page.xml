@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StudyGroupBlockPage">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:clipToPadding="false">
+
+            <TextView
+                style="@style/create_post_section_header"
+                android:text="Class Info" />
+
+            <TextView
+                android:id="@+id/course_data"
+                style="@style/create_post_section_body"
+                android:text="Course:" />
+
+
+            <TextView
+                android:id="@+id/instructor_data"
+                style="@style/create_post_section_body"
+                android:text="Instructor:" />
+
+            <TextView
+                android:id="@+id/class_time_data"
+                style="@style/create_post_section_body"
+                android:text="Class Time:" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/gray"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp" />
+
+            <TextView
+                style="@style/create_post_section_header"
+                android:text="Meeting Info" />
+
+            <TextView
+                android:id="@+id/date_data"
+                style="@style/create_post_section_body"
+                android:text="Date:" />
+
+            <TextView
+                android:id="@+id/time_data"
+                style="@style/create_post_section_body"
+                android:text="Time:" />
+
+            <TextView
+                android:id="@+id/location_data"
+                style="@style/create_post_section_body"
+                android:text="Location:" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/gray"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="16dp" />
+
+            <TextView
+                android:text="Material"
+                style="@style/create_post_section_header"/>
+
+            <TextView
+                android:id="@+id/topic_data"
+                style="@style/create_post_section_body"
+                android:text="Topic:"/>
+
+            <TextView
+                android:id="@+id/description_data"
+                style="@style/create_post_section_body"
+                android:text="Description:"/>
+
+            <TextView
+                android:id="@+id/spots_left_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textColor="#EE0C0C"
+                android:gravity="center"/>
+
+            <Button
+                android:id="@+id/join_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Join Group"
+                android:textColor="#fff"
+                android:background="@drawable/custom_button_bg"/>
+
+        </LinearLayout>
+
+    </ScrollView>

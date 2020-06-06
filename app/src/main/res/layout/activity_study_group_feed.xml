@@ -11,43 +11,52 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="85dp">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="48dp"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
                 android:layout_marginTop="16dp"
                 android:text="Select a subject:"
                 android:textColor="#000" />
 
             <Spinner
-                android:id="@+id/subject"
+                android:id="@+id/subject_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="48dp"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/spinner_border" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="48dp"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
                 android:layout_marginTop="16dp"
                 android:text="Select a course number:"
                 android:textColor="#000" />
 
             <Spinner
-                android:id="@+id/course_number"
+                android:id="@+id/course_number_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="48dp"
+                android:layout_marginStart="48dp"
+                android:layout_marginEnd="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/spinner_border" />
+
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="85dp"/>
 
         </LinearLayout>
     </ScrollView>

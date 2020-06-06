@@ -1,14 +1,11 @@
 package com.theupswing.csusbapp;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,7 +31,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -177,7 +173,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
      */
     private void populateMap() {
         DatabaseHelper database = new DatabaseHelper(this);
-        Cursor cursor = database.getAllData();
+        Cursor cursor = database.getAllDataForScavengerHunt();
 
         //database.updateLatLng("Gym", 34.181243783767364, -117.31866795569658);
 
@@ -353,7 +349,7 @@ public class ScavengerHunt extends FragmentActivity implements OnMapReadyCallbac
      */
     private void setUpProgressBar() {
         DatabaseHelper database = new DatabaseHelper(this);
-        Cursor cursor = database.getAllData();
+        Cursor cursor = database.getAllDataForScavengerHunt();
 
         int totalLocationCount = 0;
         double visitedCount = 0;

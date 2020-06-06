@@ -59,9 +59,20 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("InitializeData", MODE_PRIVATE);
         if(sharedPreferences.getBoolean("FirstTime", true)){
             DatabaseHelper databaseHelper = new DatabaseHelper(this);
-            databaseHelper.setUpDatabase();
+            databaseHelper.setUpScavengerHuntTable();
 
             SharedPreferences.Editor edit = sharedPreferences.edit();
+            edit.putBoolean("FirstTime", false);
+            edit.apply();
+        }
+
+        // This part is just for the prototype for display purposes. Delete this once Firebase is integrated:
+        SharedPreferences sharedPreferences2 = getSharedPreferences("InitializeData2", MODE_PRIVATE);
+        if(sharedPreferences2.getBoolean("FirstTime", true)){
+            DatabaseHelper databaseHelper = new DatabaseHelper(this);
+            databaseHelper.setUpStudyGroupTable();
+
+            SharedPreferences.Editor edit = sharedPreferences2.edit();
             edit.putBoolean("FirstTime", false);
             edit.apply();
         }

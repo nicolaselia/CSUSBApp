@@ -1,31 +1,32 @@
 package com.theupswing.csusbapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 public class StudyGroupBlock {
     String course, professor, subject, description;
     int spotsLeft, totalSpots;
     Context context;
+    int sessionID;
 
-    public StudyGroupBlock(Context context, String course, String professor, String subject, String description, int spotsLeft, int totalSpots){
+    public StudyGroupBlock(Context context, String course, String instructor, String topic, String description, int spotsLeft, int totalSpots, int sessionID){
         this.context = context;
         this.course = course;
-        this.professor = professor;
-        this.subject = subject;
+        this.professor = instructor;
+        this.subject = topic;
         this.description = description;
         this.spotsLeft = spotsLeft;
         this.totalSpots = totalSpots;
+        this.sessionID = sessionID;
     }
 
     /**
@@ -82,13 +83,15 @@ public class StudyGroupBlock {
         linearLayout.addView(descriptionText);
 
         // Add spots left
-        TextView spotsLeftText = new TextView(context);
-        spotsLeftText.setText(spotsLeft + "/" + totalSpots + " spots remaining");
-        spotsLeftText.setTextSize(TypedValue.COMPLEX_UNIT_SP,21);
-        spotsLeftText.setTextColor(Color.parseColor("#EE0C0C"));
-        spotsLeftText.setGravity(Gravity.END);
-        spotsLeftText.setPadding(0, padding_px, 0,0);
-        linearLayout.addView(spotsLeftText);
+        if(totalSpots != -1) {
+            TextView spotsLeftText = new TextView(context);
+            spotsLeftText.setText(spotsLeft + "/" + totalSpots + " spots remaining");
+            spotsLeftText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21);
+            spotsLeftText.setTextColor(Color.parseColor("#EE0C0C"));
+            spotsLeftText.setGravity(Gravity.END);
+            spotsLeftText.setPadding(0, padding_px, 0, 0);
+            linearLayout.addView(spotsLeftText);
+        }
 
         return linearLayout;
     }
@@ -99,6 +102,14 @@ public class StudyGroupBlock {
      */
     public void showPost(LinearLayout linearLayout){
         LinearLayout layout = getView();
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, StudyGroupBlockPage.class);
+                intent.putExtra("sessionID", sessionID);
+                context.startActivity(intent);
+            }
+        });
         linearLayout.addView(layout);
     }
 }
